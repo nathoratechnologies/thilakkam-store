@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useShop } from '../ctx';
-import { CATS, SHOP, priceText, hasPrice } from '../config';
+import { CATS, SHOP, priceText, hasPrice, catName } from '../config';
 import { STORE_PHOTOS } from '../catalog';
 import { Gem, Spark, Loader, useReveal } from '../ui';
 
@@ -17,7 +17,7 @@ function Card({ p, i }) {
         {out ? <span className="tag out">Sold out</span> : p.stock <= 3 ? <span className="tag">Only {p.stock} left</span> : null}
       </Link>
       <div className="info">
-        <span className="cat">{p.cat}</span>
+        <span className="cat">{catName(p.cat)}</span>
         <Link to={'/p/' + p.id} className="name">{p.name}</Link>
         <div className="row">
           <span className={'price' + (hasPrice(p.price) ? '' : ' ask')}>{priceText(p.price)}</span>
@@ -34,6 +34,7 @@ export default function Home() {
   const { products } = useShop();
   const [cat, setCat] = useState('all');
   const [q, setQ] = useState('');
+  const cats = CATS.filter(([k]) => k === 'all' || (products || []).some(p => p.cat === k));
   const list = (products || []).filter(p => (cat === 'all' || p.cat === cat) && p.name.toLowerCase().includes(q.trim().toLowerCase()));
 
   return (
@@ -51,7 +52,7 @@ export default function Home() {
       <section id="shop" className="wrap page">
         <div className="tools">
           <div className="chips" role="group" aria-label="Categories">
-            {CATS.map(([k, l]) => <button key={k} className="chip" aria-pressed={cat === k} onClick={() => setCat(k)}>{l}</button>)}
+            {cats.map(([k, l]) => <button key={k} className="chip" aria-pressed={cat === k} onClick={() => setCat(k)}>{l}</button>)}
           </div>
           <input className="search" id="search" type="search" placeholder="Search ornaments" aria-label="Search" value={q} onChange={e => setQ(e.target.value)} />
         </div>
@@ -94,7 +95,7 @@ export function Product() {
         )}
       </div>
       <div className="dinfo">
-        <span className="cat">{p.cat}</span>
+        <span className="cat">{catName(p.cat)}</span>
         <h1 className="h1">{p.name}</h1>
         <div className={'price big' + (hasPrice(p.price) ? '' : ' ask')}>{priceText(p.price)}</div>
         {!hasPrice(p.price) && <p className="muted small">Add it to your bag and place the order. We share the price on WhatsApp before confirming.</p>}

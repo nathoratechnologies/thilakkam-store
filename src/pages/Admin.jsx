@@ -4,7 +4,7 @@ import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { db, firebaseConfig } from '../firebase';
 import { useShop } from '../ctx';
-import { STATUSES, SHOP, shortId, priceText, lineText, totalText } from '../config';
+import { STATUSES, SHOP, CATS, shortId, priceText, lineText, totalText, catName } from '../config';
 import { COLLECTION } from '../catalog';
 import { Loader, Gem } from '../ui';
 import { when } from './Orders';
@@ -140,7 +140,7 @@ function compress(file, max = 700, quality = 0.7) {
   });
 }
 
-const BLANK = { name: '', cat: 'ladies', price: '', stock: '', desc: '', imgs: [] };
+const BLANK = { name: '', cat: 'earrings', price: '', stock: '', desc: '', imgs: [] };
 const photos = p => p.imgs?.length ? p.imgs : p.img ? [p.img] : [];
 
 function ProductsTab() {
@@ -176,7 +176,7 @@ function ProductsTab() {
         <h2 className="h2">{edit ? 'Edit item' : 'Add new item'}</h2>
         <form className="form" onSubmit={save}>
           <label htmlFor="p-name">Item name<input id="p-name" required value={f.name} onChange={set('name')} /></label>
-          <label htmlFor="p-cat">Category<select id="p-cat" value={f.cat} onChange={set('cat')}><option value="ladies">Ladies</option><option value="gents">Gents</option></select></label>
+          <label htmlFor="p-cat">Category<select id="p-cat" value={f.cat} onChange={set('cat')}>{CATS.filter(([k]) => k !== 'all').map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
           <div className="pair">
             <label htmlFor="p-price">Price (₹, optional)<input id="p-price" type="number" min="0" placeholder="Leave empty: price on request" value={f.price} onChange={set('price')} /></label>
             <label htmlFor="p-stock">Stock<input id="p-stock" type="number" min="0" required value={f.stock} onChange={set('stock')} /></label>
@@ -198,7 +198,7 @@ function ProductsTab() {
             <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
             <div className="grow">
               <div className="lname">{p.name}</div>
-              <div className="muted">{p.cat} · {priceText(p.price)}</div>
+              <div className="muted">{catName(p.cat)} · {priceText(p.price)}</div>
               <div className="qty">
                 <button onClick={() => updateDoc(doc(db, 'products', p.id), { stock: increment(-1) })} disabled={!(p.stock > 0)} aria-label={'Reduce stock of ' + p.name}>−</button>
                 <span>{p.stock}</span>
@@ -222,9 +222,11 @@ function ImportCollection({ products }) {
   const [stock, setStock] = useState('10');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({});
-  const have = new Set(products.map(p => p.name.trim().toLowerCase()));
-  const todo = COLLECTION.filter(c => !have.has(c.name.toLowerCase()));
-  if (!todo.length && !msg.ok) return null;
+  const byName = new Map(products.map(p => [p.name.trim().toLowerCase(), p]));
+  const todo = COLLECTION.filter(c => !byName.has(c.name.toLowerCase()));
+  // Collection items already in the shop whose category is not set yet.
+  const fix = COLLECTION.map(c => [byName.get(c.name.toLowerCase()), c]).filter(([p, c]) => p && p.cat !== c.cat);
+  if (!todo.length && !fix.length && !msg.ok) return null;
 
   async function run() {
     setMsg({}); setBusy(true);
@@ -232,11 +234,12 @@ function ImportCollection({ products }) {
       const b = writeBatch(db);
       const now = Date.now();
       todo.forEach((c, n) => b.set(doc(collection(db, 'products')), {
-        name: c.name, cat: 'ladies', price: null, stock: Math.max(0, Math.floor(Number(stock) || 0)), desc: '',
+        name: c.name, cat: c.cat, price: null, stock: Math.max(0, Math.floor(Number(stock) || 0)), desc: '',
         img: c.imgs[0], imgs: c.imgs, createdAt: now - n, // keeps the folder order on the shop page
       }));
+      fix.forEach(([p, c]) => b.update(doc(db, 'products', p.id), { cat: c.cat }));
       await b.commit();
-      setMsg({ ok: `${todo.length} items added. Set prices and stock any time with Edit.` });
+      setMsg({ ok: [todo.length && `${todo.length} items added`, fix.length && `${fix.length} categories set`].filter(Boolean).join(', ') + '. Set prices and stock any time with Edit.' });
     } catch (e) { console.error(e); setMsg({ err: 'Could not add the items. Try again.' }); }
     setBusy(false);
   }
@@ -244,10 +247,12 @@ function ImportCollection({ products }) {
   return (
     <div className="import">
       <h2 className="h2">Photo collection</h2>
-      {todo.length > 0 && <>
-        <p className="muted">{todo.length} new items with photos are ready to add (no price, shown as "{priceText(null)}"). Items already in the shop are skipped.</p>
-        <label htmlFor="imp-stock">Stock for each item<input id="imp-stock" type="number" min="0" value={stock} onChange={e => setStock(e.target.value)} /></label>
-        <button type="button" className="btn" disabled={busy} onClick={run}>{busy ? 'Adding…' : `Add ${todo.length} items`}</button>
+      {(todo.length > 0 || fix.length > 0) && <>
+        {todo.length > 0 && <p className="muted">{todo.length} new items with photos are ready to add, sorted by category (no price, shown as "{priceText(null)}"). Items already in the shop are skipped.</p>}
+        {todo.length > 0 && <p className="muted small">{CATS.map(([k, l]) => [l, todo.filter(c => c.cat === k).length]).filter(x => x[1]).map(([l, n]) => `${l}: ${n}`).join(' · ')}</p>}
+        {fix.length > 0 && <p className="muted">{fix.length} items already in the shop will be moved to their category.</p>}
+        {todo.length > 0 && <label htmlFor="imp-stock">Stock for each item<input id="imp-stock" type="number" min="0" value={stock} onChange={e => setStock(e.target.value)} /></label>}
+        <button type="button" className="btn" disabled={busy} onClick={run}>{busy ? 'Saving…' : todo.length ? `Add ${todo.length} items` : `Set ${fix.length} categories`}</button>
       </>}
       {msg.err && <p className="err" role="alert">{msg.err}</p>}
       {msg.ok && <p className="ok" role="status">{msg.ok}</p>}

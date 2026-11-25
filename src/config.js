@@ -8,7 +8,12 @@ export const SHOP = {
 };
 
 export const STATUSES = ['Placed', 'Confirmed', 'Packed', 'Shipped', 'Delivered', 'Cancelled'];
-export const CATS = [['all', 'All'], ['ladies', 'Ladies'], ['gents', 'Gents']];
+// Shop categories [key, label]. Only categories that have items show on the shop page.
+export const CATS = [
+  ['all', 'All'], ['earrings', 'Earrings'], ['jhumkas', 'Jhumkas'], ['necklaces', 'Necklaces & Chains'],
+  ['hair', 'Hair Accessories'], ['ladies', 'Ladies'], ['gents', 'Gents'],
+];
+export const catName = k => (CATS.find(c => c[0] === k) || [k, k])[1];
 export const rupee = n => '₹' + Number(n || 0).toLocaleString('en-IN');
 // Price is optional. Items without a price show "Price on request" and are priced on WhatsApp.
 export const hasPrice = n => n !== null && n !== undefined && n !== '' && Number(n) > 0;

@@ -3,18 +3,21 @@
 export const COLLECTION = [
   {
     "name": "Kayan Oxidised Stone Stud Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/kayan-oxidised-stone-stud-earrings-1.jpg"
     ]
   },
   {
     "name": "Kayan Antique Teardrop Stone Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/kayan-antique-teardrop-stone-earrings-1.jpg"
     ]
   },
   {
     "name": "Kayan Oxidised Flower Stud Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/kayan-oxidised-flower-stud-earrings-1.jpg",
       "/products/kayan-oxidised-flower-stud-earrings-2.jpg"
@@ -22,12 +25,14 @@ export const COLLECTION = [
   },
   {
     "name": "Stone Stud Earrings Card",
+    "cat": "earrings",
     "imgs": [
       "/products/stone-stud-earrings-card-1.jpg"
     ]
   },
   {
     "name": "Pearl Leaf Stud Earrings Combo",
+    "cat": "earrings",
     "imgs": [
       "/products/pearl-leaf-stud-earrings-combo-1.jpg",
       "/products/pearl-leaf-stud-earrings-combo-2.jpg"
@@ -35,36 +40,42 @@ export const COLLECTION = [
   },
   {
     "name": "Rose Gold Leaf Ear Cuff Set",
+    "cat": "earrings",
     "imgs": [
       "/products/rosegold-leaf-ear-cuff-set-1.jpg"
     ]
   },
   {
     "name": "Rose Gold Flower Stud Set",
+    "cat": "earrings",
     "imgs": [
       "/products/rosegold-flower-stud-set-1.jpg"
     ]
   },
   {
     "name": "S925 Star Stud Set",
+    "cat": "earrings",
     "imgs": [
       "/products/s925-star-stud-set-1.jpg"
     ]
   },
   {
     "name": "Butterfly Star Ear Crawler Set",
+    "cat": "earrings",
     "imgs": [
       "/products/butterfly-star-ear-crawler-set-1.jpg"
     ]
   },
   {
     "name": "S925 Fruit Stud Set",
+    "cat": "earrings",
     "imgs": [
       "/products/s925-fruit-stud-set-1.jpg"
     ]
   },
   {
     "name": "Kids Fruit Stud Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/kids-fruit-stud-earrings-1.jpg",
       "/products/kids-fruit-stud-earrings-2.jpg",
@@ -74,6 +85,7 @@ export const COLLECTION = [
   },
   {
     "name": "AAA Kesar S925 Stud Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/aaa-kesar-s925-stud-earrings-1.jpg",
       "/products/aaa-kesar-s925-stud-earrings-2.jpg"
@@ -81,6 +93,7 @@ export const COLLECTION = [
   },
   {
     "name": "Gold Beaded Layer Chains",
+    "cat": "necklaces",
     "imgs": [
       "/products/gold-beaded-layer-chains-1.jpg",
       "/products/gold-beaded-layer-chains-2.jpg"
@@ -88,12 +101,14 @@ export const COLLECTION = [
   },
   {
     "name": "Hair Clips Clutchers",
+    "cat": "hair",
     "imgs": [
       "/products/hair-clips-clutchers-1.jpg"
     ]
   },
   {
     "name": "Oxidised Silver Jhumka",
+    "cat": "jhumkas",
     "imgs": [
       "/products/oxidised-silver-jhumka-1.jpg",
       "/products/oxidised-silver-jhumka-2.jpg"
@@ -101,12 +116,14 @@ export const COLLECTION = [
   },
   {
     "name": "Oxidised Stone Top Jhumka",
+    "cat": "jhumkas",
     "imgs": [
       "/products/oxidised-stone-top-jhumka-1.jpg"
     ]
   },
   {
     "name": "Antique Gold Peacock Ear Cuff",
+    "cat": "earrings",
     "imgs": [
       "/products/antique-gold-peacock-ear-cuff-1.jpg",
       "/products/antique-gold-peacock-ear-cuff-2.jpg"
@@ -114,12 +131,14 @@ export const COLLECTION = [
   },
   {
     "name": "Maang Tikka Pink Stone",
+    "cat": "hair",
     "imgs": [
       "/products/maang-tikka-pink-stone-1.jpg"
     ]
   },
   {
     "name": "Antique Gold Jhumka Green Bead",
+    "cat": "jhumkas",
     "imgs": [
       "/products/antique-gold-jhumka-green-bead-1.jpg",
       "/products/antique-gold-jhumka-green-bead-2.jpg"
@@ -127,18 +146,21 @@ export const COLLECTION = [
   },
   {
     "name": "Gold Red Stone Jhumka",
+    "cat": "jhumkas",
     "imgs": [
       "/products/gold-red-stone-jhumka-1.jpg"
     ]
   },
   {
     "name": "Shubh Floral Designer Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/shubh-floral-designer-earrings-1.jpg"
     ]
   },
   {
     "name": "Shubh Blue Stone Drop Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/shubh-blue-stone-drop-earrings-1.jpg",
       "/products/shubh-blue-stone-drop-earrings-2.jpg"
@@ -146,24 +168,28 @@ export const COLLECTION = [
   },
   {
     "name": "Shubh Blue Oval Stone Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/shubh-blue-oval-stone-earrings-1.jpg"
     ]
   },
   {
     "name": "Shubh Square Stone Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/shubh-square-stone-earrings-1.jpg"
     ]
   },
   {
     "name": "Shubh Gold Square Drop Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/shubh-gold-square-drop-earrings-1.jpg"
     ]
   },
   {
     "name": "Flower Stud Earrings Card",
+    "cat": "earrings",
     "imgs": [
       "/products/flower-stud-earrings-card-1.jpg",
       "/products/flower-stud-earrings-card-2.jpg",
@@ -172,12 +198,14 @@ export const COLLECTION = [
   },
   {
     "name": "Christmas CZ Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/christmas-cz-earrings-1.jpg"
     ]
   },
   {
     "name": "Pearl Fancy Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/pearl-fancy-earrings-1.jpg",
       "/products/pearl-fancy-earrings-2.jpg"
@@ -185,6 +213,7 @@ export const COLLECTION = [
   },
   {
     "name": "Fashion Drop Earrings",
+    "cat": "earrings",
     "imgs": [
       "/products/fashion-drop-earrings-1.jpg",
       "/products/fashion-drop-earrings-2.jpg",
@@ -194,18 +223,21 @@ export const COLLECTION = [
   },
   {
     "name": "Rose Stone Necklace Set",
+    "cat": "necklaces",
     "imgs": [
       "/products/rose-stone-necklace-set-1.jpg"
     ]
   },
   {
     "name": "Gold Stone Pendant Necklace",
+    "cat": "necklaces",
     "imgs": [
       "/products/gold-stone-pendant-necklace-1.jpg"
     ]
   },
   {
     "name": "Gold Bead Necklace",
+    "cat": "necklaces",
     "imgs": [
       "/products/gold-bead-necklace-1.jpg",
       "/products/gold-bead-necklace-2.jpg"
@@ -213,6 +245,7 @@ export const COLLECTION = [
   },
   {
     "name": "Rich Pendant Necklace Sets",
+    "cat": "necklaces",
     "imgs": [
       "/products/rich-pendant-necklace-sets-1.jpg"
     ]
