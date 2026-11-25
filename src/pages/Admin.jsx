@@ -4,7 +4,7 @@ import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { db, firebaseConfig } from '../firebase';
 import { useShop } from '../ctx';
-import { STATUSES, SHOP, CATS, shortId, priceText, lineText, totalText, catName } from '../config';
+import { STATUSES, SHOP, CATS, shortId, priceText, lineText, totalText, catName, hasPrice } from '../config';
 import { COLLECTION } from '../catalog';
 import { Loader, Gem, Stars, compress, reelEmbed } from '../ui';
 import { when } from './Orders';
@@ -184,27 +184,59 @@ function ProductsTab({ admin }) {
 
       <section>
         <h2 className="h2">Items ({products?.length || 0})</h2>
-        {products === null ? <Loader /> : !products.length ? <p className="empty">No items yet. Add your first one.</p> : products.map(p => (
-          <div className="line" key={p.id}>
-            <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
-            <div className="grow">
-              <div className="lname">{p.name}</div>
-              <div className="muted">{catName(p.cat)} · {priceText(p.price)}{p.reel ? ' · Reel' : ''}</div>
+        {products === null ? <Loader /> : !products.length ? <p className="empty">No items yet. Add your first one.</p> : (
+          <ItemGrid products={products} admin={admin} onEdit={startEdit} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* Admin item list: search + category filter, compact photo tiles. */
+function ItemGrid({ products, admin, onEdit }) {
+  const [q, setQ] = useState('');
+  const [cat, setCat] = useState('all');
+  const [stock, setStock] = useState('all');
+  const cats = CATS.filter(([k]) => k === 'all' || products.some(p => p.cat === k));
+  const list = products.filter(p => (cat === 'all' || p.cat === cat)
+    && (stock === 'all' || (stock === 'out' ? !(p.stock > 0) : stock === 'low' ? p.stock > 0 && p.stock <= 3 : stock === 'noprice' ? !hasPrice(p.price) : true))
+    && p.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const n = f => products.filter(f).length;
+  return (
+    <>
+      <input className="isearch" type="search" placeholder="Search items" aria-label="Search items" value={q} onChange={e => setQ(e.target.value)} />
+      <div className="chips sub" role="group" aria-label="Category">
+        {cats.map(([k, l]) => <button key={k} className="chip sm" aria-pressed={cat === k} onClick={() => setCat(k)}>{l} ({k === 'all' ? products.length : n(p => p.cat === k)})</button>)}
+      </div>
+      <div className="chips sub" role="group" aria-label="Show">
+        {[['all', 'All'], ['noprice', `No price (${n(p => !hasPrice(p.price))})`], ['low', `Low stock (${n(p => p.stock > 0 && p.stock <= 3)})`], ['out', `Sold out (${n(p => !(p.stock > 0))})`]].map(([k, l]) =>
+          <button key={k} className="chip sm" aria-pressed={stock === k} onClick={() => setStock(k)}>{l}</button>)}
+      </div>
+      {!list.length ? <p className="empty">No items match.</p> : <p className="muted small">Showing {list.length} of {products.length}</p>}
+      <div className="igrid">
+        {list.map(p => (
+          <article className="itile" key={p.id}>
+            <button className="ipic" onClick={() => onEdit(p)} aria-label={'Edit ' + p.name}>
+              {p.img ? <img src={p.img} alt="" loading="lazy" /> : <Gem />}
+              {!(p.stock > 0) && <span className="tag out">Sold out</span>}
+            </button>
+            <div className="ibody">
+              <div className="iname" title={p.name}>{p.name}</div>
+              <div className="muted small">{catName(p.cat)} · <span className={hasPrice(p.price) ? '' : 'gold'}>{priceText(p.price)}</span></div>
               <div className="qty">
                 <button onClick={() => updateDoc(doc(db, 'products', p.id), { stock: increment(-1) })} disabled={!(p.stock > 0)} aria-label={'Reduce stock of ' + p.name}>−</button>
                 <span>{p.stock}</span>
                 <button onClick={() => updateDoc(doc(db, 'products', p.id), { stock: increment(1) })} aria-label={'Add stock of ' + p.name}>+</button>
-                <span className="muted">in stock</span>
+              </div>
+              <div className="iact">
+                <button className="link" onClick={() => onEdit(p)}>Edit</button>
+                {admin && <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'products', p.id))} />}
               </div>
             </div>
-            <div className="lact">
-              <button className="link" onClick={() => startEdit(p)}>Edit</button>
-              {admin && <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'products', p.id))} />}
-            </div>
-          </div>
+          </article>
         ))}
-      </section>
-    </div>
+      </div>
+    </>
   );
 }
 
