@@ -506,6 +506,63 @@ export const COLLECTION = [
       "/products/coin-crystal-bracelet-1.jpg",
       "/products/coin-crystal-bracelet-2.jpg"
     ]
+  },
+  // Added 25 Nov 2026, second batch
+  {
+    "name": "Lavomi Kundan Pink Bead Earrings",
+    "cat": "earrings",
+    "imgs": [
+      "/products/lavomi-kundan-pink-bead-earrings-1.jpg"
+    ]
+  },
+  {
+    "name": "Antique Ruby Stone Pearl Drop Earrings",
+    "cat": "earrings",
+    "imgs": [
+      "/products/ruby-stone-pearl-drop-earrings-1.jpg"
+    ]
+  },
+  {
+    "name": "Enamel Flower Stud Card (Multi Pair)",
+    "cat": "earrings",
+    "imgs": [
+      "/products/enamel-flower-stud-card-1.jpg"
+    ]
+  },
+  {
+    "name": "Pastel Flower Stud Card (Multi Colour)",
+    "cat": "earrings",
+    "imgs": [
+      "/products/pastel-flower-stud-card-1.jpg"
+    ]
+  },
+  {
+    "name": "Palak Antique Peacock Jhumka",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/palak-antique-peacock-jhumka-1.jpg"
+    ]
+  },
+  {
+    "name": "Kashvi Antique Gold Long Jhumka",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/kashvi-antique-long-jhumka-1.jpg"
+    ]
+  },
+  {
+    "name": "Red Stone Drop Earrings Card",
+    "cat": "earrings",
+    "imgs": [
+      "/products/red-stone-drop-earrings-card-1.jpg"
+    ]
+  },
+  {
+    "name": "Red and Pearl Drop Earrings Card",
+    "cat": "earrings",
+    "imgs": [
+      "/products/red-pearl-drop-earrings-card-1.jpg"
+    ]
   }
 ];
 
