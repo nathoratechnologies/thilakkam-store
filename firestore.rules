@@ -14,11 +14,37 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Anyone can see products. Only admin adds/edits. Staff may change stock only.
+    // Anyone can see products. Admin and staff add and edit items. Only admin deletes.
     match /products/{id} {
       allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin() || (isTeam() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']));
+      allow create, update: if isTeam();
+      allow delete: if isAdmin();
+    }
+
+    // Product reviews, one per customer per item (id = productId_uid).
+    // Only a customer whose order with this item is Delivered can review it.
+    function boughtIt(d) {
+      let o = get(/databases/$(db)/documents/orders/$(d.orderId)).data;
+      return o.uid == request.auth.uid && o.status == 'Delivered' && d.productId in o.itemIds;
+    }
+    function myReviewId(id, d) { return signedIn() && d.uid == request.auth.uid && id == d.productId + '_' + request.auth.uid; }
+    match /reviews/{id} {
+      allow read: if true;
+      allow create, update: if myReviewId(id, request.resource.data) && boughtIt(request.resource.data)
+        && request.resource.data.keys().hasOnly(['productId', 'orderId', 'uid', 'name', 'rating', 'text', 'photoCount', 'createdAt', 'updatedAt'])
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.text is string && request.resource.data.text.size() <= 1000
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.photoCount is int && request.resource.data.photoCount >= 0 && request.resource.data.photoCount <= 3;
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isTeam());
+    }
+    // Review photos are kept apart so the shop page loads only the small review text.
+    match /reviewPhotos/{id} {
+      allow read: if true;
+      allow create, update: if myReviewId(id, request.resource.data) && boughtIt(request.resource.data)
+        && request.resource.data.keys().hasOnly(['productId', 'orderId', 'uid', 'photos'])
+        && request.resource.data.photos is list && request.resource.data.photos.size() <= 3;
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isTeam());
     }
 
     // Customers see only their own orders. Admin and staff see all and update status.

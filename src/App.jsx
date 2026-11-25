@@ -9,6 +9,7 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import Review from './pages/Review';
 
 function Header() {
   const { user, count } = useShop();
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/orders" element={<Guard><Orders /></Guard>} />
+            <Route path="/review/:oid/:pid" element={<Guard><Review /></Guard>} />
             <Route path="/admin" element={<Guard team><Admin /></Guard>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

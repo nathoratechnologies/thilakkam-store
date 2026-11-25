@@ -4,13 +4,14 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useShop } from '../ctx';
 import { STATUSES, shortId, lineText, totalText } from '../config';
-import { Loader } from '../ui';
+import { Loader, Stars } from '../ui';
 
 const STEPS = STATUSES.filter(s => s !== 'Cancelled');
 export const when = t => new Date(t).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
 
 export default function Orders() {
-  const { user } = useShop();
+  const { user, reviews } = useShop();
+  const mine = pid => reviews.find(r => r.productId === pid && r.uid === user.uid);
   const [orders, setOrders] = useState(null);
 
   useEffect(() => onSnapshot(query(collection(db, 'orders'), where('uid', '==', user.uid)), s => {
@@ -37,7 +38,21 @@ export default function Orders() {
               </ol>
             )}
             <ul className="items">
-              {o.items.map(i => <li key={i.id}><span>{i.name} × {i.qty}</span><span>{lineText(i.price, i.qty)}</span></li>)}
+              {o.items.map(i => {
+                const r = mine(i.id);
+                const canReview = o.status === 'Delivered' && (o.itemIds || []).includes(i.id);
+                return (
+                  <li key={i.id} className="oitem">
+                    <span>{i.name} × {i.qty}</span><span>{lineText(i.price, i.qty)}</span>
+                    {canReview && (
+                      <span className="rv">
+                        {r && <Stars value={r.rating} />}
+                        <Link className="btn sm ghost" to={`/review/${o.id}/${i.id}`}>{r ? 'Edit review' : 'Rate & review'}</Link>
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
               <li className="sum"><span>Total</span><span>{totalText(o.items, o.total)}</span></li>
             </ul>
           </article>

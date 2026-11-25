@@ -28,3 +28,69 @@ export function useReveal() {
   }, []);
   return ref;
 }
+
+// Shrinks a photo in the browser so it fits in Firestore (no paid Storage needed).
+export function compress(file, max = 700, quality = 0.7) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- Ratings ---------- */
+export const Stars = ({ value = 0, size = 14 }) => (
+  <span className="stars" style={{ fontSize: size }} role="img" aria-label={`${value.toFixed ? value.toFixed(1) : value} out of 5 stars`}>
+    {[1, 2, 3, 4, 5].map(n => <span key={n} className={n <= Math.round(value) ? 'on' : ''} aria-hidden="true">★</span>)}
+  </span>
+);
+
+// Small "4.3 ★ (12)" badge, Flipkart style.
+export const RatingBadge = ({ avg, count }) => count > 0 && (
+  <span className="rbadge" aria-label={`Rated ${avg.toFixed(1)} out of 5 by ${count} ${count === 1 ? 'customer' : 'customers'}`}>
+    <b>{avg.toFixed(1)} ★</b><span>({count})</span>
+  </span>
+);
+
+export function StarInput({ value, onChange }) {
+  return (
+    <div className="starin" role="radiogroup" aria-label="Your rating">
+      {[1, 2, 3, 4, 5].map(n => (
+        <button key={n} type="button" role="radio" aria-checked={value === n} aria-label={`${n} star${n > 1 ? 's' : ''}`}
+          className={n <= value ? 'on' : ''} onClick={() => onChange(n)}>★</button>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Reels: Instagram reel, YouTube Shorts/video, or a direct .mp4 link ---------- */
+export function reelEmbed(url) {
+  const u = (url || '').trim();
+  if (!u) return null;
+  let m = u.match(/instagram\.com\/(?:[\w.]+\/)?(?:reels?|p|tv)\/([\w-]+)/i);
+  if (m) return { kind: 'frame', src: `https://www.instagram.com/reel/${m[1]}/embed` };
+  m = u.match(/(?:youtube\.com\/(?:shorts\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([\w-]{6,})/i);
+  if (m) return { kind: 'frame', src: `https://www.youtube.com/embed/${m[1]}` };
+  if (/^https:\/\/\S+\.(mp4|webm|mov)(\?\S*)?$/i.test(u)) return { kind: 'video', src: u };
+  return null;
+}
+
+export function Reel({ url, title }) {
+  const e = reelEmbed(url);
+  if (!e) return null;
+  return (
+    <div className="reel">
+      {e.kind === 'video'
+        ? <video src={e.src} controls playsInline preload="metadata" aria-label={title} />
+        : <iframe src={e.src} title={title} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />}
+    </div>
+  );
+}

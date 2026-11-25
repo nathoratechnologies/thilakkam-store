@@ -5,8 +5,8 @@ Online store with three logins:
 | Login | What they can do |
 |---|---|
 | Customer | Browse, add to bag, give address, place order, send it to your WhatsApp, track status |
-| Staff | See all orders with address, update order status, message the customer on WhatsApp |
-| Admin (you) | Everything staff can do, plus add/edit/delete items, update stock, create staff logins |
+| Staff | See all orders with address, update order status, message the customer on WhatsApp, add and edit items and reels, remove reviews |
+| Admin (you) | Everything staff can do, plus delete items and orders, create staff logins |
 
 Built with React + Vite + Firebase (Auth + Firestore). Runs on the free Firebase Spark plan.
 Product photos are compressed and saved inside Firestore, so Firebase Storage (paid plan) is not needed.
@@ -54,6 +54,8 @@ Staff logins are then created from Dashboard > Staff. No console needed.
 - **Photo collection:** photos in `public/products` and `public/store` are listed in `src/catalog.js`. Dashboard > Products > "Add N items" creates the shop items in one tap (items already in the shop are skipped). Store photos show in "From our store" on the home page.
 - **Stock:** use the − / + buttons beside each item. Stock also goes down automatically when an order is set to Confirmed, and comes back if that order is Cancelled.
 - **Orders:** Dashboard > Orders. Change the status in the dropdown. The customer sees it on their "My orders" page. "Send status on WhatsApp" opens a ready message to the customer.
+- **Reels:** when adding or editing an item, paste an Instagram reel or YouTube Shorts link in "Reel video link". It plays on the item page and in the Reels strip on the home page. (Video files cannot be uploaded on the free Firebase plan, so reels are links.)
+- **Reviews:** once an order is set to Delivered, the customer sees "Rate & review" beside each item in My orders: 1-5 stars, text, and up to 3 photos. Reviews show on the item page with the average rating, a star breakdown and customer photos. Admin and staff remove a review from Dashboard > Reviews or from the item page. Orders placed before this feature cannot be reviewed.
 - **Customer order to WhatsApp:** after a customer places an order, they tap "Send order on WhatsApp". You get the items, a link to each item (opens its photo), total, and the address. The order is saved in the Dashboard even if they skip this step.
 
 ## 5. Deploy later

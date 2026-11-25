@@ -40,7 +40,8 @@ export default function Cart() {
     try {
       const items = lines.map(({ p, q }) => ({ id: p.id, name: p.name, price: hasPrice(p.price) ? Number(p.price) : null, qty: q }));
       const order = {
-        uid: user.uid, email: user.email, items, total, status: 'Placed', stockTaken: false, createdAt: Date.now(),
+        uid: user.uid, email: user.email, items, itemIds: items.map(i => i.id), total, // itemIds lets the buyer review these items later
+        status: 'Placed', stockTaken: false, createdAt: Date.now(),
         name: form.name.trim(), phone: form.phone.trim(), address: form.address.trim(), pincode: form.pincode.trim(), note: form.note.trim(),
       };
       const ref = await addDoc(collection(db, 'orders'), order);

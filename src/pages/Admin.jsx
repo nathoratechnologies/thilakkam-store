@@ -6,13 +6,13 @@ import { db, firebaseConfig } from '../firebase';
 import { useShop } from '../ctx';
 import { STATUSES, SHOP, CATS, shortId, priceText, lineText, totalText, catName } from '../config';
 import { COLLECTION } from '../catalog';
-import { Loader, Gem } from '../ui';
+import { Loader, Gem, Stars, compress, reelEmbed } from '../ui';
 import { when } from './Orders';
 
 export default function Admin() {
   const { user } = useShop();
   const admin = user.role === 'admin';
-  const tabs = admin ? [['orders', 'Orders'], ['products', 'Products'], ['team', 'Staff']] : [['orders', 'Orders']];
+  const tabs = [['orders', 'Orders'], ['products', 'Products'], ['reviews', 'Reviews'], ...(admin ? [['team', 'Staff']] : [])];
   const [tab, setTab] = useState('orders');
   return (
     <div className="wrap page fade">
@@ -24,7 +24,8 @@ export default function Admin() {
         {tabs.map(([k, l]) => <button key={k} role="tab" className="chip" aria-selected={tab === k} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</button>)}
       </div>
       {tab === 'orders' && <OrdersTab admin={admin} />}
-      {tab === 'products' && admin && <ProductsTab />}
+      {tab === 'products' && <ProductsTab admin={admin} />}
+      {tab === 'reviews' && <ReviewsTab />}
       {tab === 'team' && admin && <TeamTab me={user.uid} />}
     </div>
   );
@@ -125,25 +126,10 @@ function DeleteBtn({ label, onYes }) {
 }
 
 /* ---------- Products: admin only ---------- */
-function compress(file, max = 700, quality = 0.7) {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    img.onload = () => {
-      const s = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      res(c.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = rej;
-    img.src = URL.createObjectURL(file);
-  });
-}
-
-const BLANK = { name: '', cat: 'earrings', price: '', stock: '', desc: '', imgs: [] };
+const BLANK = { name: '', cat: 'earrings', price: '', stock: '', desc: '', imgs: [], reel: '' };
 const photos = p => p.imgs?.length ? p.imgs : p.img ? [p.img] : [];
 
-function ProductsTab() {
+function ProductsTab({ admin }) {
   const { products } = useShop();
   const [f, setF] = useState(BLANK);
   const [edit, setEdit] = useState(null);
@@ -159,8 +145,10 @@ function ProductsTab() {
   }
   async function save(e) {
     e.preventDefault();
-    setErr(''); setBusy(true);
-    const data = { name: f.name.trim(), cat: f.cat, price: f.price === '' ? null : Number(f.price), stock: Math.max(0, Math.floor(Number(f.stock))), desc: f.desc.trim(), img: f.imgs[0] || '', imgs: f.imgs };
+    setErr('');
+    if (f.reel.trim() && !reelEmbed(f.reel)) return setErr('Reel link not recognised. Paste an Instagram reel or YouTube Shorts link.');
+    setBusy(true);
+    const data = { name: f.name.trim(), cat: f.cat, price: f.price === '' ? null : Number(f.price), stock: Math.max(0, Math.floor(Number(f.stock))), desc: f.desc.trim(), img: f.imgs[0] || '', imgs: f.imgs, reel: f.reel.trim() };
     try {
       if (edit) await updateDoc(doc(db, 'products', edit), data);
       else await addDoc(collection(db, 'products'), { ...data, createdAt: Date.now() });
@@ -168,7 +156,7 @@ function ProductsTab() {
     } catch (e2) { console.error(e2); setErr('Could not save the item. Try again.'); }
     setBusy(false);
   }
-  const startEdit = p => { setEdit(p.id); setF({ name: p.name, cat: p.cat, price: p.price ?? '', stock: p.stock, desc: p.desc || '', imgs: photos(p) }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const startEdit = p => { setEdit(p.id); setF({ name: p.name, cat: p.cat, price: p.price ?? '', stock: p.stock, desc: p.desc || '', imgs: photos(p), reel: p.reel || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   return (
     <div className="two">
@@ -182,6 +170,7 @@ function ProductsTab() {
             <label htmlFor="p-stock">Stock<input id="p-stock" type="number" min="0" required value={f.stock} onChange={set('stock')} /></label>
           </div>
           <label htmlFor="p-desc">Description (optional)<textarea id="p-desc" rows="2" value={f.desc} onChange={set('desc')} /></label>
+          <label htmlFor="p-reel">Reel video link (optional)<input id="p-reel" type="url" inputMode="url" placeholder="Instagram reel or YouTube Shorts link" value={f.reel} onChange={set('reel')} /></label>
           <label htmlFor="p-img">Photos (up to 4)<input id="p-img" type="file" accept="image/*" multiple onChange={pick} /></label>
           {f.imgs.length > 0 && <div className="previews">{f.imgs.map((src, n) => <img key={n} className="preview" src={src} alt={'Preview ' + (n + 1)} />)}</div>}
           {err && <p className="err" role="alert">{err}</p>}
@@ -198,7 +187,7 @@ function ProductsTab() {
             <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
             <div className="grow">
               <div className="lname">{p.name}</div>
-              <div className="muted">{catName(p.cat)} · {priceText(p.price)}</div>
+              <div className="muted">{catName(p.cat)} · {priceText(p.price)}{p.reel ? ' · Reel' : ''}</div>
               <div className="qty">
                 <button onClick={() => updateDoc(doc(db, 'products', p.id), { stock: increment(-1) })} disabled={!(p.stock > 0)} aria-label={'Reduce stock of ' + p.name}>−</button>
                 <span>{p.stock}</span>
@@ -208,7 +197,7 @@ function ProductsTab() {
             </div>
             <div className="lact">
               <button className="link" onClick={() => startEdit(p)}>Edit</button>
-              <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'products', p.id))} />
+              {admin && <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'products', p.id))} />}
             </div>
           </div>
         ))}
@@ -270,6 +259,33 @@ function ImportCollection({ products }) {
   );
 }
 
+/* ---------- Reviews: admin + staff can remove a review ---------- */
+function ReviewsTab() {
+  const { reviews, products } = useShop();
+  const name = id => (products || []).find(p => p.id === id)?.name || 'Deleted item';
+  async function remove(r) {
+    await deleteDoc(doc(db, 'reviews', r.id));
+    if (r.photoCount) deleteDoc(doc(db, 'reviewPhotos', r.id)).catch(() => {});
+  }
+  if (!reviews.length) return <p className="empty">No reviews yet. Customers can review an item once their order is Delivered.</p>;
+  return (
+    <div className="olist">
+      {reviews.map(r => (
+        <article className="panel" key={r.id}>
+          <div className="ohead">
+            <Stars value={r.rating} />
+            <strong>{name(r.productId)}</strong>
+            <span className="muted">{r.name} · {when(r.createdAt)}</span>
+          </div>
+          {r.text && <p>{r.text}</p>}
+          {r.photoCount > 0 && <p className="muted small">{r.photoCount} photo{r.photoCount > 1 ? 's' : ''} · <a href={'/p/' + r.productId + '#reviews'}>see on item page</a></p>}
+          <DeleteBtn label="Remove review" onYes={() => remove(r)} />
+        </article>
+      ))}
+    </div>
+  );
+}
+
 /* ---------- Staff logins: admin only ---------- */
 function TeamTab({ me }) {
   const [team, setTeam] = useState(null);
@@ -304,7 +320,7 @@ function TeamTab({ me }) {
     <div className="two">
       <section className="panel">
         <h2 className="h2">Create staff login</h2>
-        <p className="muted">Staff can see orders and update their status. They cannot add items or create logins.</p>
+        <p className="muted">Staff can see orders, update their status, add and edit items, and remove reviews. They cannot delete items or create logins.</p>
         <form className="form" onSubmit={create}>
           <label htmlFor="t-name">Name<input id="t-name" required value={f.name} onChange={set('name')} /></label>
           <label htmlFor="t-email">Email<input id="t-email" type="email" required value={f.email} onChange={set('email')} /></label>
