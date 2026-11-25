@@ -3,7 +3,7 @@ export const SHOP = {
   name: 'Thilakkam',
   malayalam: 'തിളക്കം',
   tagline: 'Lifestyle Store',
-  whatsapp: '91XXXXXXXXXX', // your WhatsApp number: country code + number, no + or spaces
+  whatsapp: '919446760354', // your WhatsApp number: country code + number, no + or spaces
   instagram: '',            // e.g. thilakkam.store (optional)
 };
 
