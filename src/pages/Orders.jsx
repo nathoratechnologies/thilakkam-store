@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useShop } from '../ctx';
-import { STATUSES, rupee, shortId } from '../config';
+import { STATUSES, shortId, lineText, totalText } from '../config';
 import { Loader } from '../ui';
 
 const STEPS = STATUSES.filter(s => s !== 'Cancelled');
@@ -37,8 +37,8 @@ export default function Orders() {
               </ol>
             )}
             <ul className="items">
-              {o.items.map(i => <li key={i.id}><span>{i.name} × {i.qty}</span><span>{rupee(i.price * i.qty)}</span></li>)}
-              <li className="sum"><span>Total</span><span>{rupee(o.total)}</span></li>
+              {o.items.map(i => <li key={i.id}><span>{i.name} × {i.qty}</span><span>{lineText(i.price, i.qty)}</span></li>)}
+              <li className="sum"><span>Total</span><span>{totalText(o.items, o.total)}</span></li>
             </ul>
           </article>
         );

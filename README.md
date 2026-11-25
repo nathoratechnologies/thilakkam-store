@@ -50,7 +50,8 @@ Staff logins are then created from Dashboard > Staff. No console needed.
 
 ## 4. Daily use
 
-- **Add items:** Dashboard > Products > fill name, category, price, stock, photo > Add item.
+- **Add items:** Dashboard > Products > fill name, category, stock, photos (up to 4) > Add item. Price is optional: leave it empty and the item shows "Price on request"; you quote the price on WhatsApp.
+- **Photo collection:** photos in `public/products` and `public/store` are listed in `src/catalog.js`. Dashboard > Products > "Add N items" creates the shop items in one tap (items already in the shop are skipped). Store photos show in "From our store" on the home page.
 - **Stock:** use the − / + buttons beside each item. Stock also goes down automatically when an order is set to Confirmed, and comes back if that order is Cancelled.
 - **Orders:** Dashboard > Orders. Change the status in the dropdown. The customer sees it on their "My orders" page. "Send status on WhatsApp" opens a ready message to the customer.
 - **Customer order to WhatsApp:** after a customer places an order, they tap "Send order on WhatsApp". You get the items, a link to each item (opens its photo), total, and the address. The order is saved in the Dashboard even if they skip this step.

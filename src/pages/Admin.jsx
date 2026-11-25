@@ -4,7 +4,8 @@ import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { db, firebaseConfig } from '../firebase';
 import { useShop } from '../ctx';
-import { STATUSES, SHOP, rupee, shortId } from '../config';
+import { STATUSES, SHOP, shortId, priceText, lineText, totalText } from '../config';
+import { COLLECTION } from '../catalog';
 import { Loader, Gem } from '../ui';
 import { when } from './Orders';
 
@@ -91,10 +92,10 @@ function OrdersTab({ admin }) {
               {o.items.map(i => (
                 <li key={i.id}>
                   <span className="withpic"><span className="thumb sm">{pic(i.id) ? <img src={pic(i.id)} alt="" /> : <Gem size={18} />}</span>{i.name} × {i.qty}</span>
-                  <span>{rupee(i.price * i.qty)}</span>
+                  <span>{lineText(i.price, i.qty)}</span>
                 </li>
               ))}
-              <li className="sum"><span>Total</span><span>{rupee(o.total)}</span></li>
+              <li className="sum"><span>Total</span><span>{totalText(o.items, o.total)}</span></li>
             </ul>
             <div className="oact">
               <label htmlFor={'st-' + o.id}>Status
@@ -139,7 +140,8 @@ function compress(file, max = 700, quality = 0.7) {
   });
 }
 
-const BLANK = { name: '', cat: 'ladies', price: '', stock: '', desc: '', img: '' };
+const BLANK = { name: '', cat: 'ladies', price: '', stock: '', desc: '', imgs: [] };
+const photos = p => p.imgs?.length ? p.imgs : p.img ? [p.img] : [];
 
 function ProductsTab() {
   const { products } = useShop();
@@ -149,15 +151,16 @@ function ProductsTab() {
   const [err, setErr] = useState('');
   const set = k => e => setF({ ...f, [k]: e.target.value });
 
+  // Up to 4 photos per item; the first one is the main photo.
   async function pick(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    try { setF({ ...f, img: await compress(file) }); } catch { setErr('Could not read that photo. Try another one.'); }
+    const files = [...e.target.files].slice(0, 4);
+    if (!files.length) return;
+    try { setF({ ...f, imgs: await Promise.all(files.map(x => compress(x))) }); } catch { setErr('Could not read that photo. Try another one.'); }
   }
   async function save(e) {
     e.preventDefault();
     setErr(''); setBusy(true);
-    const data = { name: f.name.trim(), cat: f.cat, price: Number(f.price), stock: Math.max(0, Math.floor(Number(f.stock))), desc: f.desc.trim(), img: f.img };
+    const data = { name: f.name.trim(), cat: f.cat, price: f.price === '' ? null : Number(f.price), stock: Math.max(0, Math.floor(Number(f.stock))), desc: f.desc.trim(), img: f.imgs[0] || '', imgs: f.imgs };
     try {
       if (edit) await updateDoc(doc(db, 'products', edit), data);
       else await addDoc(collection(db, 'products'), { ...data, createdAt: Date.now() });
@@ -165,7 +168,7 @@ function ProductsTab() {
     } catch (e2) { console.error(e2); setErr('Could not save the item. Try again.'); }
     setBusy(false);
   }
-  const startEdit = p => { setEdit(p.id); setF({ name: p.name, cat: p.cat, price: p.price, stock: p.stock, desc: p.desc || '', img: p.img || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const startEdit = p => { setEdit(p.id); setF({ name: p.name, cat: p.cat, price: p.price ?? '', stock: p.stock, desc: p.desc || '', imgs: photos(p) }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   return (
     <div className="two">
@@ -175,16 +178,17 @@ function ProductsTab() {
           <label htmlFor="p-name">Item name<input id="p-name" required value={f.name} onChange={set('name')} /></label>
           <label htmlFor="p-cat">Category<select id="p-cat" value={f.cat} onChange={set('cat')}><option value="ladies">Ladies</option><option value="gents">Gents</option></select></label>
           <div className="pair">
-            <label htmlFor="p-price">Price (₹)<input id="p-price" type="number" min="0" required value={f.price} onChange={set('price')} /></label>
+            <label htmlFor="p-price">Price (₹, optional)<input id="p-price" type="number" min="0" placeholder="Leave empty: price on request" value={f.price} onChange={set('price')} /></label>
             <label htmlFor="p-stock">Stock<input id="p-stock" type="number" min="0" required value={f.stock} onChange={set('stock')} /></label>
           </div>
           <label htmlFor="p-desc">Description (optional)<textarea id="p-desc" rows="2" value={f.desc} onChange={set('desc')} /></label>
-          <label htmlFor="p-img">Photo<input id="p-img" type="file" accept="image/*" onChange={pick} /></label>
-          {f.img && <img className="preview" src={f.img} alt="Preview" />}
+          <label htmlFor="p-img">Photos (up to 4)<input id="p-img" type="file" accept="image/*" multiple onChange={pick} /></label>
+          {f.imgs.length > 0 && <div className="previews">{f.imgs.map((src, n) => <img key={n} className="preview" src={src} alt={'Preview ' + (n + 1)} />)}</div>}
           {err && <p className="err" role="alert">{err}</p>}
           <button className="btn" disabled={busy}>{busy ? 'Saving…' : edit ? 'Save changes' : 'Add item'}</button>
           {edit && <button type="button" className="btn ghost" onClick={() => { setEdit(null); setF(BLANK); }}>Cancel</button>}
         </form>
+        {products && <ImportCollection products={products} />}
       </section>
 
       <section>
@@ -194,7 +198,7 @@ function ProductsTab() {
             <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
             <div className="grow">
               <div className="lname">{p.name}</div>
-              <div className="muted">{p.cat} · {rupee(p.price)}</div>
+              <div className="muted">{p.cat} · {priceText(p.price)}</div>
               <div className="qty">
                 <button onClick={() => updateDoc(doc(db, 'products', p.id), { stock: increment(-1) })} disabled={!(p.stock > 0)} aria-label={'Reduce stock of ' + p.name}>−</button>
                 <span>{p.stock}</span>
@@ -209,6 +213,44 @@ function ProductsTab() {
           </div>
         ))}
       </section>
+    </div>
+  );
+}
+
+/* ---------- One-click import of the photo collection (src/catalog.js) ---------- */
+function ImportCollection({ products }) {
+  const [stock, setStock] = useState('10');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState({});
+  const have = new Set(products.map(p => p.name.trim().toLowerCase()));
+  const todo = COLLECTION.filter(c => !have.has(c.name.toLowerCase()));
+  if (!todo.length && !msg.ok) return null;
+
+  async function run() {
+    setMsg({}); setBusy(true);
+    try {
+      const b = writeBatch(db);
+      const now = Date.now();
+      todo.forEach((c, n) => b.set(doc(collection(db, 'products')), {
+        name: c.name, cat: 'ladies', price: null, stock: Math.max(0, Math.floor(Number(stock) || 0)), desc: '',
+        img: c.imgs[0], imgs: c.imgs, createdAt: now - n, // keeps the folder order on the shop page
+      }));
+      await b.commit();
+      setMsg({ ok: `${todo.length} items added. Set prices and stock any time with Edit.` });
+    } catch (e) { console.error(e); setMsg({ err: 'Could not add the items. Try again.' }); }
+    setBusy(false);
+  }
+
+  return (
+    <div className="import">
+      <h2 className="h2">Photo collection</h2>
+      {todo.length > 0 && <>
+        <p className="muted">{todo.length} new items with photos are ready to add (no price, shown as "{priceText(null)}"). Items already in the shop are skipped.</p>
+        <label htmlFor="imp-stock">Stock for each item<input id="imp-stock" type="number" min="0" value={stock} onChange={e => setStock(e.target.value)} /></label>
+        <button type="button" className="btn" disabled={busy} onClick={run}>{busy ? 'Adding…' : `Add ${todo.length} items`}</button>
+      </>}
+      {msg.err && <p className="err" role="alert">{msg.err}</p>}
+      {msg.ok && <p className="ok" role="status">{msg.ok}</p>}
     </div>
   );
 }

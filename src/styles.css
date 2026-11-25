@@ -92,12 +92,27 @@ nav a.active { color: var(--gold2); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 10px; }
 .price { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .price.big { font-size: 24px; color: var(--gold2); }
+.price.ask { font-size: 13px; font-weight: 500; color: var(--gold2); white-space: normal; }
+.price.big.ask { font-size: 20px; }
 
 /* Product detail */
 .detail { display: grid; gap: 24px; }
 @media (min-width: 760px) { .detail { grid-template-columns: 1fr 1fr; align-items: start; } }
 .dinfo { display: flex; flex-direction: column; gap: 10px; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+/* Product photo gallery */
+.gallery { display: grid; gap: 10px; min-width: 0; }
+.thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumbs .thumb { padding: 0; border: 2px solid transparent; cursor: pointer; }
+.thumbs .thumb[aria-pressed="true"] { border-color: var(--gold); }
+
+/* Store photos strip */
+.store { padding-top: 0; }
+.store .muted { margin-bottom: 14px; }
+.strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+.strip img { flex: none; width: 210px; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); scroll-snap-align: start; }
+@media (min-width: 720px) { .strip img { width: 240px; } }
 
 /* Layout helpers */
 .two { display: grid; gap: 28px; margin-top: 8px; }
@@ -124,6 +139,8 @@ input, select, textarea { width: 100%; min-height: 44px; padding: 10px 12px; bor
 input:focus, select:focus, textarea:focus { border-color: var(--gold); outline: none; }
 input[type="file"] { padding: 8px; }
 .preview { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.previews { display: flex; gap: 8px; flex-wrap: wrap; }
+.import { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
 .switch { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; }
 
 /* Orders */

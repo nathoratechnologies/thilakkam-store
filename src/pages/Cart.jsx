@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useShop } from '../ctx';
-import { SHOP, rupee, shortId } from '../config';
+import { SHOP, rupee, shortId, hasPrice, priceText, lineText, totalText } from '../config';
 import { Loader, Gem } from '../ui';
 
 export default function Cart() {
@@ -26,7 +26,8 @@ export default function Cart() {
   );
 
   const lines = Object.entries(cart).map(([id, q]) => ({ p: products.find(x => x.id === id), q })).filter(x => x.p);
-  const total = lines.reduce((s, { p, q }) => s + p.price * q, 0);
+  const total = lines.reduce((s, { p, q }) => s + (hasPrice(p.price) ? p.price * q : 0), 0);
+  const totalLabel = totalText(lines.map(({ p }) => p), total);
   const form = f || { name: user?.name || '', phone: user?.phone || '', address: user?.address || '', pincode: user?.pincode || '', note: '' };
   const set = k => e => setF({ ...form, [k]: e.target.value });
 
@@ -37,7 +38,7 @@ export default function Cart() {
     if (!/^\d{6}$/.test(form.pincode.trim())) return setErr('Enter a 6-digit pincode.');
     setBusy(true);
     try {
-      const items = lines.map(({ p, q }) => ({ id: p.id, name: p.name, price: p.price, qty: q }));
+      const items = lines.map(({ p, q }) => ({ id: p.id, name: p.name, price: hasPrice(p.price) ? Number(p.price) : null, qty: q }));
       const order = {
         uid: user.uid, email: user.email, items, total, status: 'Placed', stockTaken: false, createdAt: Date.now(),
         name: form.name.trim(), phone: form.phone.trim(), address: form.address.trim(), pincode: form.pincode.trim(), note: form.note.trim(),
@@ -46,8 +47,8 @@ export default function Cart() {
       updateDoc(doc(db, 'users', user.uid), { name: order.name, phone: order.phone, address: order.address, pincode: order.pincode }).catch(() => {});
       const msg = [
         `*New order ${shortId(ref.id)} - ${SHOP.name}*`, '',
-        ...items.map((i, n) => `${n + 1}. ${i.name} x ${i.qty} - ${rupee(i.price * i.qty)}\n   ${location.origin}/p/${i.id}`),
-        '', `*Total: ${rupee(total)}*`, '',
+        ...items.map((i, n) => `${n + 1}. ${i.name} x ${i.qty} - ${lineText(i.price, i.qty)}\n   ${location.origin}/p/${i.id}`),
+        '', `*Total: ${totalText(items, total)}*`, '',
         `Name: ${order.name}`, `Phone: ${order.phone}`, `Address: ${order.address} - ${order.pincode}`,
         order.note && `Note: ${order.note}`,
       ].filter(x => x !== false && x !== undefined && x !== null).join('\n');
@@ -77,17 +78,17 @@ export default function Cart() {
             <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
             <div className="grow">
               <div className="lname">{p.name}</div>
-              <div className="muted">{rupee(p.price)}</div>
+              <div className="muted">{priceText(p.price)}</div>
               <div className="qty">
                 <button onClick={() => add(p.id, -1)} aria-label={'One less ' + p.name}>−</button>
                 <span>{q}</span>
                 <button onClick={() => add(p.id, 1)} disabled={q >= p.stock} aria-label={'One more ' + p.name}>+</button>
               </div>
             </div>
-            <div className="price">{rupee(p.price * q)}</div>
+            <div className="price">{lineText(p.price, q)}</div>
           </div>
         ))}
-        <div className="total"><span>Total</span><span>{rupee(total)}</span></div>
+        <div className="total"><span>Total</span><span>{totalLabel}</span></div>
       </section>
 
       <section className="panel">
@@ -105,7 +106,7 @@ export default function Cart() {
             <label htmlFor="c-pin">Pincode<input id="c-pin" required inputMode="numeric" value={form.pincode} onChange={set('pincode')} autoComplete="postal-code" /></label>
             <label htmlFor="c-note">Note (optional)<input id="c-note" value={form.note} onChange={set('note')} /></label>
             {err && <p className="err" role="alert">{err}</p>}
-            <button className="btn" disabled={busy}>{busy ? 'Placing order…' : `Place order · ${rupee(total)}`}</button>
+            <button className="btn" disabled={busy}>{busy ? 'Placing order…' : total > 0 ? `Place order · ${rupee(total)}` : 'Place order'}</button>
             <p className="muted small">After this you send the order to our WhatsApp. We confirm the price, delivery charge and payment there.</p>
           </form>
         )}
