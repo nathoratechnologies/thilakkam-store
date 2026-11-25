@@ -10,6 +10,7 @@ export const pending = { name: '' }; // name typed on the sign-up form
 export function Provider({ children }) {
   const [user, setUser] = useState(undefined); // undefined = loading, null = signed out
   const [products, setProducts] = useState(null);
+  const [posters, setPosters] = useState(null); // offer / news posters shown on the shop page
   const [reviews, setReviews] = useState([]); // review text + rating only; photos load on the item page
   const [cart, setCart] = useState(() => {
     try { return JSON.parse(localStorage.getItem('tk-cart')) || {}; } catch { return {}; }
@@ -36,6 +37,10 @@ export function Provider({ children }) {
     setProducts(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
   }, () => setProducts([])), []);
 
+  useEffect(() => onSnapshot(collection(db, 'posters'), s => {
+    setPosters(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
+  }, () => setPosters([])), []);
+
   useEffect(() => onSnapshot(collection(db, 'reviews'), s => {
     setReviews(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
   }, () => setReviews([])), []);
@@ -55,5 +60,5 @@ export function Provider({ children }) {
   const clear = () => setCart({});
   const count = Object.values(cart).reduce((s, q) => s + q, 0);
 
-  return <Ctx.Provider value={{ user, setUser, products, reviews, ratings, cart, add, clear, count }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, setUser, products, posters, reviews, ratings, cart, add, clear, count }}>{children}</Ctx.Provider>;
 }

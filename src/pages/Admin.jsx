@@ -8,11 +8,12 @@ import { STATUSES, SHOP, CATS, shortId, priceText, lineText, totalText, catName 
 import { COLLECTION } from '../catalog';
 import { Loader, Gem, Stars, compress, reelEmbed } from '../ui';
 import { when } from './Orders';
+import { Poster, POSTER_TAGS, DEMO_POSTER } from '../posters';
 
 export default function Admin() {
   const { user } = useShop();
   const admin = user.role === 'admin';
-  const tabs = [['orders', 'Orders'], ['products', 'Products'], ['reviews', 'Reviews'], ...(admin ? [['team', 'Staff']] : [])];
+  const tabs = [['orders', 'Orders'], ['products', 'Products'], ['reviews', 'Reviews'], ...(admin ? [['posters', 'Posters'], ['team', 'Staff']] : [])];
   const [tab, setTab] = useState('orders');
   return (
     <div className="wrap page fade">
@@ -26,6 +27,7 @@ export default function Admin() {
       {tab === 'orders' && <OrdersTab admin={admin} />}
       {tab === 'products' && <ProductsTab admin={admin} />}
       {tab === 'reviews' && <ReviewsTab />}
+      {tab === 'posters' && admin && <PostersTab />}
       {tab === 'team' && admin && <TeamTab me={user.uid} />}
     </div>
   );
@@ -198,6 +200,84 @@ function ProductsTab({ admin }) {
             <div className="lact">
               <button className="link" onClick={() => startEdit(p)}>Edit</button>
               {admin && <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'products', p.id))} />}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+/* ---------- Posters: admin only. Shown as a popup when the site opens and as a banner on the shop page. ---------- */
+const PBLANK = { tag: 'Shop offer', title: '', text: '', img: '', productId: '' };
+
+function PostersTab() {
+  const { posters, products } = useShop();
+  const [f, setF] = useState(PBLANK);
+  const [edit, setEdit] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const set = k => e => setF({ ...f, [k]: e.target.value });
+
+  async function pick(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    try { setF({ ...f, img: await compress(file, 1200, 0.8) }); } catch { setErr('Could not read that photo. Try another one.'); }
+  }
+  async function save(e) {
+    e.preventDefault();
+    setErr('');
+    if (!f.img && !f.title.trim()) return setErr('Add a poster photo or a title.');
+    setBusy(true);
+    const data = { tag: f.tag, title: f.title.trim(), text: f.text.trim(), img: f.img, productId: f.productId };
+    try {
+      if (edit) await updateDoc(doc(db, 'posters', edit), data);
+      else await addDoc(collection(db, 'posters'), { ...data, active: true, createdAt: Date.now() });
+      setF(PBLANK); setEdit(null);
+    } catch (e2) { console.error(e2); setErr(e2.code === 'permission-denied' ? 'Not allowed. Publish the new Firestore rules (firestore.rules) first.' : 'Could not save the poster. Try a smaller photo.'); }
+    setBusy(false);
+  }
+  const startEdit = p => { setEdit(p.id); setF({ tag: p.tag || '', title: p.title || '', text: p.text || '', img: p.img || '', productId: p.productId || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+  return (
+    <div className="two">
+      <section className="panel">
+        <h2 className="h2">{edit ? 'Edit poster' : 'Add poster'}</h2>
+        <p className="muted small">Posters pop up when someone opens the website and slide on the shop page. Upload a ready-made poster photo, or leave the photo empty and type a title to get a designed poster.</p>
+        <form className="form" onSubmit={save}>
+          <label htmlFor="ps-tag">Label<select id="ps-tag" value={f.tag} onChange={set('tag')}>
+            <option value="">No label</option>{POSTER_TAGS.map(t => <option key={t}>{t}</option>)}
+          </select></label>
+          <label htmlFor="ps-title">Title<input id="ps-title" maxLength="60" placeholder="e.g. Flat 20% off on all jhumkas" value={f.title} onChange={set('title')} /></label>
+          <label htmlFor="ps-text">Details (optional)<textarea id="ps-text" rows="2" maxLength="200" placeholder="e.g. Offer valid till 31 December" value={f.text} onChange={set('text')} /></label>
+          <label htmlFor="ps-item">Link to an item (optional, for item offers)<select id="ps-item" value={f.productId} onChange={set('productId')}>
+            <option value="">No item</option>{(products || []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select></label>
+          <label htmlFor="ps-img">Poster photo (optional)<input id="ps-img" type="file" accept="image/*" onChange={pick} /></label>
+          {f.img && <button type="button" className="link" onClick={() => setF({ ...f, img: '' })}>Remove photo</button>}
+          <div className="pprev"><span className="muted small">Preview</span><Poster p={{ ...f, id: 'preview' }} /></div>
+          {err && <p className="err" role="alert">{err}</p>}
+          <button className="btn" disabled={busy}>{busy ? 'Saving…' : edit ? 'Save changes' : 'Add poster'}</button>
+          {edit && <button type="button" className="btn ghost" onClick={() => { setEdit(null); setF(PBLANK); }}>Cancel</button>}
+        </form>
+      </section>
+
+      <section>
+        <h2 className="h2">Posters ({posters?.length || 0})</h2>
+        {posters === null ? <Loader /> : !posters.length ? <>
+          <p className="empty">No posters yet. The website shows this demo poster until you add one:</p>
+          <div className="pprev"><Poster p={DEMO_POSTER} /></div>
+        </> : posters.map(p => (
+          <div className="line" key={p.id}>
+            <div className="thumb">{p.img ? <img src={p.img} alt="" /> : <Gem />}</div>
+            <div className="grow">
+              <div className="lname">{p.title || p.tag || 'Poster'}</div>
+              <div className="muted">{p.tag}{p.active === false ? ' · Hidden' : ' · Showing'}</div>
+            </div>
+            <div className="lact">
+              <button className="link" onClick={() => updateDoc(doc(db, 'posters', p.id), { active: p.active === false })}>{p.active === false ? 'Show' : 'Hide'}</button>
+              <button className="link" onClick={() => startEdit(p)}>Edit</button>
+              <DeleteBtn label="Delete" onYes={() => deleteDoc(doc(db, 'posters', p.id))} />
             </div>
           </div>
         ))}

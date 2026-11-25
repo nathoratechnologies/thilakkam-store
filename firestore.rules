@@ -21,6 +21,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Offer and news posters on the shop page. Only admin adds, edits and removes them.
+    match /posters/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     // Product reviews, one per customer per item (id = productId_uid).
     // Only a customer whose order with this item is Delivered can review it.
     function boughtIt(d) {

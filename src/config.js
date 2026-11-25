@@ -10,7 +10,7 @@ export const SHOP = {
 export const STATUSES = ['Placed', 'Confirmed', 'Packed', 'Shipped', 'Delivered', 'Cancelled'];
 // Shop categories [key, label]. Only categories that have items show on the shop page.
 export const CATS = [
-  ['all', 'All'], ['earrings', 'Earrings'], ['jhumkas', 'Jhumkas'], ['necklaces', 'Necklaces & Chains'],
+  ['all', 'All'], ['earrings', 'Earrings'], ['jhumkas', 'Jhumkas'], ['necklaces', 'Necklaces & Chains'], ['bracelets', 'Bracelets'],
   ['hair', 'Hair Accessories'], ['ladies', 'Ladies'], ['gents', 'Gents'],
 ];
 export const catName = k => (CATS.find(c => c[0] === k) || [k, k])[1];
@@ -27,3 +27,6 @@ export const totalText = (items, total) => {
   return total > 0 ? `${rupee(total)} + items on request` : ASK;
 };
 export const shortId = id => '#' + id.slice(-6).toUpperCase();
+// WhatsApp link for a customer to ask the shop the price of an item that has none.
+export const askPriceLink = p => `https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(
+  `Hi ${SHOP.name}, I would like to know the price of this item:\n${p.name}\n${location.origin}/p/${p.id}`)}`;

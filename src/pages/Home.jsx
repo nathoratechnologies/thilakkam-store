@@ -3,10 +3,11 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { collection, deleteDoc, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useShop } from '../ctx';
-import { CATS, SHOP, priceText, hasPrice, catName } from '../config';
+import { CATS, SHOP, priceText, hasPrice, catName, askPriceLink } from '../config';
 import { STORE_PHOTOS } from '../catalog';
 import { Gem, Spark, Loader, useReveal, Stars, RatingBadge, Reel, reelEmbed } from '../ui';
 import { when } from './Orders';
+import { PosterBanner, PosterPopup } from '../posters';
 
 function Card({ p, i }) {
   const ref = useReveal();
@@ -26,7 +27,9 @@ function Card({ p, i }) {
         <Link to={'/p/' + p.id} className="name">{p.name}</Link>
         {rt && <RatingBadge avg={rt.avg} count={rt.count} />}
         <div className="row">
-          <span className={'price' + (hasPrice(p.price) ? '' : ' ask')}>{priceText(p.price)}</span>
+          {hasPrice(p.price)
+            ? <span className="price">{priceText(p.price)}</span>
+            : <a className="price ask asklink" href={askPriceLink(p)} target="_blank" rel="noopener">Request price</a>}
           <button className={'btn sm' + (q ? ' ghost' : '')} disabled={out || q >= p.stock} onClick={() => add(p.id, 1)}>
             {q ? `In bag (${q})` : 'Add'}
           </button>
@@ -55,6 +58,9 @@ export default function Home() {
           <a href="#shop" className="btn rise" style={{ animationDelay: '360ms' }}>Shop the collection</a>
         </div>
       </section>
+
+      <PosterBanner />
+      <PosterPopup />
 
       <section id="shop" className="wrap page">
         <div className="tools">
@@ -121,7 +127,10 @@ export function Product() {
         <h1 className="h1">{p.name}</h1>
         {ratings[p.id] && <a href="#reviews" className="rlink"><RatingBadge avg={ratings[p.id].avg} count={ratings[p.id].count} /> <span>See reviews</span></a>}
         <div className={'price big' + (hasPrice(p.price) ? '' : ' ask')}>{priceText(p.price)}</div>
-        {!hasPrice(p.price) && <p className="muted small">Add it to your bag and place the order. We share the price on WhatsApp before confirming.</p>}
+        {!hasPrice(p.price) && <>
+          <a className="btn wa" href={askPriceLink(p)} target="_blank" rel="noopener">Request price on WhatsApp</a>
+          <p className="muted small">Or add it to your bag and place the order. We share the price on WhatsApp before confirming.</p>
+        </>}
         {p.desc && <p className="muted">{p.desc}</p>}
         <p className="muted">{out ? 'Sold out' : p.stock <= 3 ? `Only ${p.stock} left` : 'In stock'}</p>
         <div className="actions">

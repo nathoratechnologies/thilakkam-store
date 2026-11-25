@@ -249,6 +249,263 @@ export const COLLECTION = [
     "imgs": [
       "/products/rich-pendant-necklace-sets-1.jpg"
     ]
+  },
+  // Added 25 Nov 2026
+  {
+    "name": "Antique Kemp Jhumka Ruby Emerald",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/kemp-jhumka-ruby-emerald-1.jpg",
+      "/products/kemp-jhumka-ruby-emerald-2.jpg"
+    ]
+  },
+  {
+    "name": "Antique Kemp Jhumka Ruby Red",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/kemp-jhumka-ruby-red-1.jpg",
+      "/products/kemp-jhumka-ruby-red-2.jpg"
+    ]
+  },
+  {
+    "name": "Temple Peacock Jhumka Green Bead",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/temple-peacock-jhumka-green-bead-1.jpg"
+    ]
+  },
+  {
+    "name": "Oxidised Jhumka Grey Stone Top",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/oxidised-jhumka-grey-stone-top-1.jpg"
+    ]
+  },
+  {
+    "name": "Oxidised Flower Jhumka",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/oxidised-flower-jhumka-1.jpg"
+    ]
+  },
+  {
+    "name": "Oxidised Jhumka Mint Stone Top",
+    "cat": "jhumkas",
+    "imgs": [
+      "/products/oxidised-jhumka-mint-stone-top-1.jpg"
+    ]
+  },
+  {
+    "name": "AAA Kesar Zircon Flower Studs (3 Pairs)",
+    "cat": "earrings",
+    "imgs": [
+      "/products/aaa-kesar-zircon-flower-studs-1.jpg"
+    ]
+  },
+  {
+    "name": "Rose Gold Fashion Stud Set",
+    "cat": "earrings",
+    "imgs": [
+      "/products/rose-gold-fashion-stud-set-1.jpg"
+    ]
+  },
+  {
+    "name": "S925 Rose Gold Flower Stud Set",
+    "cat": "earrings",
+    "imgs": [
+      "/products/s925-rose-gold-flower-stud-set-1.jpg"
+    ]
+  },
+  {
+    "name": "925 Silver Bow Stud Set",
+    "cat": "earrings",
+    "imgs": [
+      "/products/silver-bow-stud-set-1.jpg"
+    ]
+  },
+  {
+    "name": "Gold Hoop Earrings Set",
+    "cat": "earrings",
+    "imgs": [
+      "/products/gold-hoop-earrings-set-1.jpg"
+    ]
+  },
+  {
+    "name": "Stainless Steel Flower Drop Necklace",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/flower-drop-necklace-1.jpg",
+      "/products/flower-drop-necklace-2.jpg"
+    ]
+  },
+  {
+    "name": "Solitaire Stone Snake Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/solitaire-snake-chain-1.jpg",
+      "/products/solitaire-snake-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Oval Charm Pendant Necklace",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/oval-charm-necklace-1.jpg",
+      "/products/oval-charm-necklace-2.jpg"
+    ]
+  },
+  {
+    "name": "Pink Flower Pendant Necklace",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/pink-flower-pendant-necklace-1.jpg",
+      "/products/pink-flower-pendant-necklace-2.jpg"
+    ]
+  },
+  {
+    "name": "Solitaire Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/solitaire-pendant-chain-1.jpg",
+      "/products/solitaire-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Flower Outline Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/flower-outline-pendant-chain-1.jpg",
+      "/products/flower-outline-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Star Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/star-pendant-chain-1.jpg",
+      "/products/star-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Butterfly Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/butterfly-pendant-chain-1.jpg",
+      "/products/butterfly-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Heart Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/heart-pendant-chain-1.jpg",
+      "/products/heart-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Clover Pendant Chain",
+    "cat": "necklaces",
+    "imgs": [
+      "/products/clover-pendant-chain-1.jpg",
+      "/products/clover-pendant-chain-2.jpg"
+    ]
+  },
+  {
+    "name": "Tri-Tone Flower Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/flower-charm-bracelet-1.jpg",
+      "/products/flower-charm-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Tri-Tone Ring Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/tri-tone-ring-bracelet-1.jpg",
+      "/products/tri-tone-ring-bracelet-2.jpg",
+      "/products/tri-tone-ring-bracelet-3.jpg"
+    ]
+  },
+  {
+    "name": "Gunmetal Ring Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/dark-ring-bracelet-1.jpg",
+      "/products/dark-ring-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Butterfly Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/butterfly-charm-bracelet-1.jpg",
+      "/products/butterfly-charm-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Tri-Tone Star Heart Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/star-heart-charm-bracelet-1.jpg",
+      "/products/star-heart-charm-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Tri-Tone Heart Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/heart-charm-bracelet-1.jpg",
+      "/products/heart-charm-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Teardrop Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/teardrop-crystal-bracelet-1.jpg",
+      "/products/teardrop-crystal-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Butterfly Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/butterfly-crystal-bracelet-1.jpg",
+      "/products/butterfly-crystal-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Sun Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/sun-crystal-bracelet-1.jpg",
+      "/products/sun-crystal-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Star Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/star-crystal-bracelet-1.jpg",
+      "/products/star-crystal-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Leaf Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/leaf-crystal-bracelet-1.jpg",
+      "/products/leaf-crystal-bracelet-2.jpg"
+    ]
+  },
+  {
+    "name": "Coin Crystal Charm Bracelet",
+    "cat": "bracelets",
+    "imgs": [
+      "/products/coin-crystal-bracelet-1.jpg",
+      "/products/coin-crystal-bracelet-2.jpg"
+    ]
   }
 ];
 
