@@ -228,19 +228,28 @@ function ImportCollection({ products }) {
   const fix = COLLECTION.map(c => [byName.get(c.name.toLowerCase()), c]).filter(([p, c]) => p && p.cat !== c.cat);
   if (!todo.length && !fix.length && !msg.ok) return null;
 
+  // One write per item: a single big batch can exceed Firestore's security-rule limits and fail as a whole.
   async function run() {
     setMsg({}); setBusy(true);
+    const now = Date.now();
+    const qty = Math.max(0, Math.floor(Number(stock) || 0));
+    let added = 0, moved = 0;
     try {
-      const b = writeBatch(db);
-      const now = Date.now();
-      todo.forEach((c, n) => b.set(doc(collection(db, 'products')), {
-        name: c.name, cat: c.cat, price: null, stock: Math.max(0, Math.floor(Number(stock) || 0)), desc: '',
-        img: c.imgs[0], imgs: c.imgs, createdAt: now - n, // keeps the folder order on the shop page
-      }));
-      fix.forEach(([p, c]) => b.update(doc(db, 'products', p.id), { cat: c.cat }));
-      await b.commit();
-      setMsg({ ok: [todo.length && `${todo.length} items added`, fix.length && `${fix.length} categories set`].filter(Boolean).join(', ') + '. Set prices and stock any time with Edit.' });
-    } catch (e) { console.error(e); setMsg({ err: 'Could not add the items. Try again.' }); }
+      for (const [n, c] of todo.entries()) {
+        setMsg({ info: `Adding ${n + 1} of ${todo.length}…` });
+        await addDoc(collection(db, 'products'), {
+          name: c.name, cat: c.cat, price: null, stock: qty, desc: '',
+          img: c.imgs[0], imgs: c.imgs, createdAt: now - n, // keeps the folder order on the shop page
+        });
+        added++;
+      }
+      for (const [p, c] of fix) { await updateDoc(doc(db, 'products', p.id), { cat: c.cat }); moved++; }
+      setMsg({ ok: [added && `${added} items added`, moved && `${moved} categories set`].filter(Boolean).join(', ') + '. Set prices and stock any time with Edit.' });
+    } catch (e) {
+      console.error(e);
+      const why = e.code === 'permission-denied' ? 'Your login is not allowed to add items. Check that your role is "admin" in Firestore > users.' : (e.code || e.message);
+      setMsg({ err: `Stopped after ${added} items. ${why} Tap the button again to continue.` });
+    }
     setBusy(false);
   }
 
@@ -254,6 +263,7 @@ function ImportCollection({ products }) {
         {todo.length > 0 && <label htmlFor="imp-stock">Stock for each item<input id="imp-stock" type="number" min="0" value={stock} onChange={e => setStock(e.target.value)} /></label>}
         <button type="button" className="btn" disabled={busy} onClick={run}>{busy ? 'Saving…' : todo.length ? `Add ${todo.length} items` : `Set ${fix.length} categories`}</button>
       </>}
+      {msg.info && <p className="muted" role="status">{msg.info}</p>}
       {msg.err && <p className="err" role="alert">{msg.err}</p>}
       {msg.ok && <p className="ok" role="status">{msg.ok}</p>}
     </div>
